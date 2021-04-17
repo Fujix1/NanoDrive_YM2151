@@ -4,9 +4,10 @@
 ## これはなに?
 何かと話題の RISC-V マイコン Longan Nano (GD32V) を遣って VGM ファイルを再生させる試みです。SD カード内のフォルダに保存した vgm 拡張子のファイルを順番に再生します。<br>
 可能な限り表面実装部品を使ってコンパクトにまとめることを目標にしています。
+<br><br>
+![IMG_1632](https://user-images.githubusercontent.com/13434151/115113300-952b9580-9fc4-11eb-808a-bc6cd5cee498.jpg)
 <br>
 <br>
-
 ## コンパイルとマイコンへの書き込み
 Visual Studio Code + PlatformIO IDE を使用します。具体的な使用法については以下を参照。<br>
 - https://beta-notes.way-nifty.com/blog/2019/12/post-b8455c.html<br>
@@ -36,10 +37,6 @@ Visual Studio Code + PlatformIO IDE を使用します。具体的な使用法�
 
 SD カードにディレクトリを作って、その中に VGM フォーマットファイルを保存します。ファイルには「.vgm」の拡張子が必要です。ZIP 圧縮された VGM ファイルである「*.vgz」は認識しません。解答して .vgm の拡張子をつけてください。不要なファイル、空のディレクトリは削除してください。
 
-
-## 実装
-
-![IMG_1632](https://user-images.githubusercontent.com/13434151/115113300-952b9580-9fc4-11eb-808a-bc6cd5cee498.jpg)
 
 ## ノイズについて
 ### SD カードのアクセスノイズ
