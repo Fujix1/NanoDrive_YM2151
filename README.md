@@ -2,7 +2,7 @@
 
 
 ## これはなに?
-何かと話題の RISC-V マイコン Longan Nano (GD32V) を遣って VGM ファイルを再生させる試みです。SD カード内のフォルダに保存した vgm 拡張子のファイルを順番に再生します。<br>
+何かと話題の RISC-V マイコン Longan Nano (GD32V) を使って VGM ファイルを再生させる試みです。SD カード内のフォルダに保存した vgm 拡張子のファイルを順番に再生します。<br>
 可能な限り表面実装部品を使ってコンパクトにまとめることを目標にしています。
 <br><br>
 ![IMG_1632](https://user-images.githubusercontent.com/13434151/115113300-952b9580-9fc4-11eb-808a-bc6cd5cee498.jpg)
