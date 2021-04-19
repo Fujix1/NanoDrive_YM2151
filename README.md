@@ -26,7 +26,7 @@ Visual Studio Code + PlatformIO IDE を使用します。具体的な使用法�
 - [YMZ294D](https://akizukidenshi.com/catalog/g/gI-12141/): AY-3-8919, YM2149 互換の PSG(SSG) 音声チップ。秋月電子で入手可能。
 - YM2151: FM 音源チップ。アリエクなどで入手可能。偽物やリマーク品が増えてきたので注意。
 - YM3012: DAC チップ。アリエクなどで入手可能。リマーク品あり。
-- オペアンプ: 4個入り SOP14、速めのものがオススメ。超高性能なものは発振する可能性大。今回の例では [OPA1654AIDR](https://www.ti.com/store/ti/en/p/product/?p=OPA1654AIDR) と [LMC6484AIMX/NOPB] (https://www.ti.com/store/ti/en/p/product/?p=LMC6484AIMX/NOPB) を試した。中華から買うと100%ニセモノが来るので TI.com から直接買ったほうがよい。
+- オペアンプ: 4個入り SOP14、速めのものがオススメ。超高性能なものは発振する可能性大。今回の例では [OPA1654AIDR](https://www.ti.com/store/ti/en/p/product/?p=OPA1654AIDR) と [LMC6484AIMX/NOPB](https://www.ti.com/store/ti/en/p/product/?p=LMC6484AIMX/NOPB) を試した。中華から買うと100%ニセモノが来るので TI.com から直接買ったほうがよい。
 - PT2257: I2C 制御の音量調整 IC 表面実装 SOP8 版。5V 動作。アリエクなどで入手可能。
 - 1000uF: 電源安定用 OS-CON。秋月で入手可能。 
 - ボリューム: 10KΩ Aカーブ。[ALPSALPNE 製 RK09K/RK09D](https://tech.alpsalpine.com/prod/j/html/potentiometer/rotarypotentiometers/rk09k/rk09k_list.html) を使用。YM2151 用は[二連](https://tech.alpsalpine.com/prod/j/html/potentiometer/rotarypotentiometers/rk09k/rk09k12c0a8k.html)、PSG用は[単連](https://tech.alpsalpine.com/prod/j/html/potentiometer/rotarypotentiometers/rk09k/rk09d117000c.html)、高さ30mm。[MISUMI VONA](https://jp.misumi-ec.com/)で入手可能。
