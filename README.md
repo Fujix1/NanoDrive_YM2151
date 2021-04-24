@@ -1,4 +1,4 @@
-# VGM player for Longan Nano (YM2151 FM + YMZ294-D PSG) / Longan Nano で動くVGM プレーヤー (YM2151 FM + YMZ294-D PSG版)
+# VGM player for Longan Nano / Longan Nano で動くVGM プレーヤー (YM2151 FM + YMZ294-D PSG版)
 
 
 ## これはなに?
