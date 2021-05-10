@@ -30,7 +30,8 @@ Visual Studio Code + PlatformIO IDE を使用します。具体的な使用法�
 - PT2257: I2C 制御の音量調整 IC 表面実装 SOP8 版。5V 動作。アリエクなどで入手可能。
 - 1000uF: 電源安定用 OS-CON。秋月で入手可能。 
 - ボリューム: 10KΩ Aカーブ。[ALPSALPNE 製 RK09K/RK09D](https://tech.alpsalpine.com/prod/j/html/potentiometer/rotarypotentiometers/rk09k/rk09k_list.html) を使用。YM2151 用は[二連](https://tech.alpsalpine.com/prod/j/html/potentiometer/rotarypotentiometers/rk09k/rk09k12c0a8k.html)、PSG用は[単連](https://tech.alpsalpine.com/prod/j/html/potentiometer/rotarypotentiometers/rk09k/rk09d117000c.html)、高さ30mm。単連は[秋月で](https://akizukidenshi.com/catalog/g/gP-14773/)、二連は MISUMI VONA などで入手可能。
-- その他のチップ: 表面実装 1206 サイズ。
+- その他の表面実装チップ: 1206 (JIS 3216) サイズ。
+- ボリュームつまみ: D軸、高さ 15mm だとアクリル板に干渉しないけど、売られているものは 17mm が多い。イモネジタイプで 13mm のものがあるけど[高いのです](https://akizukidenshi.com/catalog/g/gP-12202/)。
 <br>
 <br>
 
