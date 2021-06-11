@@ -1,4 +1,4 @@
-# Longan Nano で動くVGM プレーヤー (YM2151 FM + YMZ294-D PSG版)
+# VGM player for Longan Nano / Longan Nano で動くVGM プレーヤー (YM2151 FM + YMZ294-D PSG版)
 
 
 ## これはなに?
@@ -22,14 +22,16 @@ Visual Studio Code + PlatformIO IDE を使用します。具体的な使用法�
 
 ## 使用部品の説明
 - Longan Nano: マイコン。128KB フラッシュメモリ版（64KB 版では足りません）。IC ソケットに入るように細いピンヘッダで実装のこと。
-- AE-Si5351A: I2C 制御の可変周波数発信 IC を使った秋月電子で売られているモジュール。
-- YMZ294D: AY-3-8919, YM2149 互換の PSG(SSG) 音声チップ。秋月電子で入手可能。
-- YM2151: FM 音源チップ。アリエクなどで入手可能。偽物やリマーク品が増えてきた。
+- [AE-Si5351A](https://akizukidenshi.com/catalog/g/gK-10679/): I2C 制御の可変周波数発振 IC Si5351 を使った秋月電子で売られているモジュール。
+- [YMZ294D](https://akizukidenshi.com/catalog/g/gI-12141/): AY-3-8919, YM2149 互換の PSG(SSG) 音声チップ。秋月電子で入手可能。
+- YM2151: FM 音源チップ。アリエクなどで入手可能。偽物やリマーク品が増えてきたので注意。
 - YM3012: DAC チップ。アリエクなどで入手可能。リマーク品あり。
-- オペアンプ: 4個入り SOP14、速めのものがオススメ。
+- オペアンプ: 4個入り SOP14、速めのものがオススメ。超高性能なものは発振する可能性大。今回の例では [OPA1654AIDR](https://www.ti.com/store/ti/en/p/product/?p=OPA1654AIDR) と [LMC6484AIMX/NOPB](https://www.ti.com/store/ti/en/p/product/?p=LMC6484AIMX/NOPB) を試した。中華から買うと100%ニセモノが来るので TI.com から直接買ったほうがよい。
 - PT2257: I2C 制御の音量調整 IC 表面実装 SOP8 版。5V 動作。アリエクなどで入手可能。
 - 1000uF: 電源安定用 OS-CON。秋月で入手可能。 
-- その他のチップ: 表面実装 1206 サイズ。
+- ボリューム: 10KΩ Aカーブ。[ALPSALPNE 製 RK09K/RK09D](https://tech.alpsalpine.com/prod/j/html/potentiometer/rotarypotentiometers/rk09k/rk09k_list.html) を使用。YM2151 用は[二連](https://tech.alpsalpine.com/prod/j/html/potentiometer/rotarypotentiometers/rk09k/rk09k12c0a8k.html)、PSG用は[単連](https://tech.alpsalpine.com/prod/j/html/potentiometer/rotarypotentiometers/rk09k/rk09d117000c.html)、高さ30mm。単連は[秋月で](https://akizukidenshi.com/catalog/g/gP-14773/)、二連は MISUMI VONA などで入手可能。
+- その他の表面実装チップ: 1206 (JIS 3216) サイズ。
+- ボリュームつまみ: D軸、高さ 15mm だとアクリル板に干渉しないけど、売られているものは 17mm が多い。イモネジタイプで 13mm のものがあるけど[高いのです](https://akizukidenshi.com/catalog/g/gP-12202/)。
 <br>
 <br>
 
@@ -40,7 +42,8 @@ SD カードにディレクトリを作って、その中に VGM フォーマッ
 
 ## ノイズについて
 ### SD カードのアクセスノイズ
-SD カードにデータ読み込みをするときにブツブツとノイズが出ることがあります。これはアクセス時に大きく電圧降下が起こるのが原因で、SD カードの種類によってノイズが目立つものと目立たないものがあります。いろいろ試してノイズの少ないものを使うのがおすすめです。
+microSD カードからデータを読むときにブツブツとノイズが出ます。これはアクセス時に一気に大電流(100mA前後)が流れるため電圧降下が起こるのが原因です。<br>
+SD カードの種類によってノイズが目立つものと目立たないものがあります。これまで試した限りでは、容量が少ないもの（2GBとか）だと圧倒的にノイズが少ないですがメーカーが違えば異なると思われます。
 
 ### PC 電源のノイズ
 PC から USB で電源供給を行い、さらに音声を PC に入力すると大きなグランドのループができて、ノイズが増幅されることがあります。電源は可能な限りクリーンなもの（モバイルバッテリーなど）を使ってください。
