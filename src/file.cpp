@@ -663,7 +663,7 @@ void vgmOpen(int d, int f) {
     */
     salamand = salamands[d];
     Tick.delay_ms(16);
-    PT2257.reset();
+    PT2257.reset(attenuations[d]);
   }
 }
 
