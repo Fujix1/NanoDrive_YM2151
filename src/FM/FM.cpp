@@ -67,12 +67,12 @@ void FMChip::reset(void) {
   WR_HIGH;
   A0_LOW;
   IC_LOW;
-  Tick.delay_us(20);  // at least 72 cycles // at 4MHz: 0.25us * 72 = 18us
+  Tick.delay_us(64);  // at least 72 cycles // at 4MHz: 0.25us * 72 = 18us
   IC_HIGH;
   CS0_HIGH;
   CS1_HIGH;
   // CS2_HIGH;
-  Tick.delay_us(20);
+  Tick.delay_us(64);
 }
 
 void FMChip::write(byte data, byte chipno = CS1) {
