@@ -12,7 +12,7 @@
 #define BUFFERCAPACITY 2048  // VGMの読み込み単位（バイト）
 #define MAXLOOP 2            // 次の曲いくループ数
 #define SAMPLE_RATE 44100.0
-#define ONE_CYCLE 612u
+#define ONE_CYCLE 610u
 // 22.67573696145125 * 27 = 612.24  // 1000000 / SAMPLE_RATE
 
 boolean mount_is_ok = false;
