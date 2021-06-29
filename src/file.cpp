@@ -9,11 +9,11 @@
 #include "SI5351/SI5351.hpp"
 #include "keypad/keypad.hpp"
 
-#define BUFFERCAPACITY 4096  // VGMの読み込み単位（バイト）
+#define BUFFERCAPACITY 2048  // VGMの読み込み単位（バイト）
 #define MAXLOOP 2            // 次の曲いくループ数
 #define SAMPLE_RATE 44100.0
-#define ONE_CYCLE 22.68  // 22.67573696145125  // 1000000 / SAMPLE_RATE
-#define SALAMAND_FACTOR 0.9
+#define ONE_CYCLE 612u
+// 22.67573696145125 * 27 = 612.24  // 1000000 / SAMPLE_RATE
 
 boolean mount_is_ok = false;
 uint8_t currentDir;     // 今のディレクトリインデックス
@@ -21,7 +21,6 @@ uint8_t currentFile;    // 今のファイルインデックス
 uint8_t numDirs = 0;    // ルートにあるディレクトリ数
 char **dirs;            // ルートにあるディレクトリの配列
 uint8_t *attenuations;  // 各ディレクトリの減衰量 (デシベル)
-bool *salamands;        // 各ディレクトリの沙羅曼蛇モード
 char ***files;          // 各ディレクトリ内の vgm ファイル名配列
 uint8_t *numFiles;      // 各ディレクトリ内の vgm ファイル数
 
@@ -40,15 +39,12 @@ FRESULT fr;
 // VGM状態
 uint32_t vgmLoopOffset;     // ループデータの戻る場所
 boolean vgmLoaded = false;  // VGM データが読み込まれた状態か
-
-uint8_t vgmLoop = 0;  // 現在のループ回数
-uint32_t startTime;
+uint8_t vgmLoop = 0;        // 現在のループ回数
+uint64_t startTime;
 uint32_t duration;
 int32_t vgmDelay = 0;
 
 uint32_t compensation = 0;
-uint32_t afterFMCommand = 0;  // FMチップへの命令後は 1 サイクル入れる
-bool salamand = true;
 
 //---------------------------------------------------------------
 // 初期化とSDオープン
@@ -119,7 +115,6 @@ boolean sd_init() {
     files = (char ***)malloc(sizeof(char **) * numDirs);
     numFiles = new uint8_t[numDirs];
     attenuations = new uint8_t[numDirs];
-    salamands = new bool[numDirs];
 
     //-------------------------------------------------------
     // フォルダ内ファイル情報取得（数える）
@@ -173,13 +168,6 @@ boolean sd_init() {
       fr = f_findfirst(&dir, &fno, dirs[i], "att14");
       if (fr == FR_OK && fno.fname[0]) {
         attenuations[i] = 14;
-      }
-
-      // 沙羅曼蛇モード
-      salamands[i] = false;
-      fr = f_findfirst(&dir, &fno, dirs[i], "salamand");
-      if (fr == FR_OK && fno.fname[0]) {
-        salamands[i] = true;
       }
     }
 
@@ -282,17 +270,6 @@ uint32_t get_vgm_ui32_at(uint32_t pos) {
 
   return (uint32_t(buffer[0])) + (uint32_t(buffer[1]) << 8) +
          (uint32_t(buffer[2]) << 16) + (uint32_t(buffer[3]) << 24);
-}
-
-//----------------------------------------------------------------------
-// VGM のポーズ命令
-void pause(uint32_t samples) {
-  startTime = get_timer_value() / 27 + 2;  // startTime = Tick.micros2();
-  // duration = 22.67547 * samples;
-  if (salamand)
-    duration = ONE_CYCLE * samples * 0.9;
-  else
-    duration = ONE_CYCLE * samples;
 }
 
 //----------------------------------------------------------------------
@@ -404,6 +381,9 @@ void vgmReady() {
                                   : 0;
   if (vgm_ay8910_clock) {
     switch (vgm_ay8910_clock) {
+      case 1250000:  // 1.25MHz
+        SI5351.setFreq(SI5351_1250, 0);
+        break;
       case 1500000:  // 1.5 MHz
         SI5351.setFreq(SI5351_3000, 0);
         break;
@@ -530,10 +510,8 @@ void vgmReady() {
   // 初期バッファ補充
   fr = f_read(&fil, vgmBuffer1, BUFFERCAPACITY, &bufferSize);
   bufferPos = 0;
-
   vgmLoaded = true;
   compensation = 0;
-  afterFMCommand = 0;
 }
 
 void vgmProcess() {
@@ -547,7 +525,7 @@ void vgmProcess() {
 
     uint8_t reg;
     uint8_t dat;
-    startTime = Tick.micros2();
+    startTime = get_timer_value();
     byte command = get_vgm_ui8();
 
     switch (command) {
@@ -555,7 +533,7 @@ void vgmProcess() {
         dat = get_vgm_ui8();
         reg = get_vgm_ui8();
         FM.set_register(dat, reg, CS1);
-        afterFMCommand++;
+        vgmDelay -= 1;
         break;
       case 0x30:  // SN76489 CHIP 2
         FM.write(get_vgm_ui8(), CS2);
@@ -572,25 +550,23 @@ void vgmProcess() {
         reg = get_vgm_ui8();
         dat = get_vgm_ui8();
         FM.set_register(reg, dat, CS0);
-        afterFMCommand++;
+        // compensation += 16 * 27;
+        vgmDelay -= 1;
         break;
       case 0x55:  // YM2203_0
         reg = get_vgm_ui8();
         dat = get_vgm_ui8();
         FM.set_register(reg, dat, CS0);
-        afterFMCommand++;
         break;
       case 0xA5:  // YM2203_1
         reg = get_vgm_ui8();
         dat = get_vgm_ui8();
         FM.set_register(reg, dat, CS1);
-        afterFMCommand++;
         break;
       case 0x5A:  // YM3812
         reg = get_vgm_ui8();
         dat = get_vgm_ui8();
         FM.set_register(reg, dat, CS0);
-        afterFMCommand++;
         break;
 
       // Wait n samples, n can range from 0 to 65535 (approx 1.49 seconds)
@@ -646,19 +622,11 @@ void vgmProcess() {
         break;
     }
 
-    // handle delays
-    if (afterFMCommand > 0) {
-      // ensure adding 1 cycle after sending a FM command.
-      while ((Tick.micros2() - startTime) <= afterFMCommand * ONE_CYCLE) {
-      }
-      vgmDelay -= afterFMCommand;
-      afterFMCommand = 0;
-    }
-
     if (vgmDelay > 0) {
-      afterFMCommand = 0;
-      while ((Tick.micros2() - startTime) <= vgmDelay * ONE_CYCLE) {
-        if (vgmDelay > 10) {
+      bool flag = false;
+      while ((get_timer_value() - startTime) <= vgmDelay * ONE_CYCLE) {
+        if (flag == false && vgmDelay > 5) {
+          flag = true;
           // handle key input
           switch (Keypad.checkButton()) {
             case Keypad.btnSELECT:  // ◯－－－－
@@ -679,6 +647,7 @@ void vgmProcess() {
           }
         }
       }
+      compensation = 0;
       vgmDelay = 0;
     }
   }
@@ -706,7 +675,6 @@ void vgmOpen(int d, int f) {
     FM.write(0xdf, CS2);
     FM.write(0xff, CS2);
     */
-    salamand = salamands[d];
     Tick.delay_ms(16);
     PT2257.reset(attenuations[d]);
   }

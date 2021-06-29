@@ -1,5 +1,5 @@
 /*
-  
+
   SI5351 for Longan Nano
 
 */
@@ -8,10 +8,10 @@
 #define __SI5351_H
 
 #include <gd32vf103.h>
+
 #include "Wire/Wire.hpp"
 
 #define SI5351_ADDRESS 0x60
-
 
 /* See http://www.silabs.com/Support%20Documents/TechnicalDocs/AN619.pdf for
  * registers 26..41 */
@@ -128,24 +128,27 @@ typedef enum {
   SI5351_7670 = 8,
   SI5351_1536 = 9,
   SI5351_3375 = 10,
+  SI5351_1250 = 11,
 } si5351Freq_t;
 
 class SI5351_cls {
-  private:
-    si5351Freq_t currentFreq;
-  private:
-    void write8(uint8_t reg, uint8_t value);
-  public:
-    void begin(void);
-    void setupPLL(si5351PLL_t pll, uint8_t mult, uint32_t num, uint32_t denom);
-    void setupPLLInt(si5351PLL_t pll, uint8_t mult);
-    void setupMultisynth(uint8_t output, si5351PLL_t pllSource, uint32_t div,
-                         uint32_t num, uint32_t denom);
-    void setupMultisynthInt(uint8_t output, si5351PLL_t pllSource,
-                            si5351MultisynthDiv_t div);
-    void enableOutputs(bool enabled);
-    void setFreq(si5351Freq_t newFreq, uint8_t output = 0);
-    SI5351_cls(void);
+ private:
+  si5351Freq_t currentFreq;
+
+ private:
+  void write8(uint8_t reg, uint8_t value);
+
+ public:
+  void begin(void);
+  void setupPLL(si5351PLL_t pll, uint8_t mult, uint32_t num, uint32_t denom);
+  void setupPLLInt(si5351PLL_t pll, uint8_t mult);
+  void setupMultisynth(uint8_t output, si5351PLL_t pllSource, uint32_t div,
+                       uint32_t num, uint32_t denom);
+  void setupMultisynthInt(uint8_t output, si5351PLL_t pllSource,
+                          si5351MultisynthDiv_t div);
+  void enableOutputs(bool enabled);
+  void setFreq(si5351Freq_t newFreq, uint8_t output = 0);
+  SI5351_cls(void);
 };
 
 extern SI5351_cls SI5351;

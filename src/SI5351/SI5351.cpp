@@ -1,17 +1,18 @@
 /*
-  
+
   SI5351 for Longan Nano
 
 */
-#include <gd32vf103.h>
 #include "SI5351.hpp"
-#include <stdlib.h>
+
+#include <gd32vf103.h>
 #include <math.h>
+#include <stdlib.h>
 
 /*
  *  Write a register and an 8-bit value over I2C
  */
-void SI5351_cls::write8(uint8_t reg, uint8_t value){
+void SI5351_cls::write8(uint8_t reg, uint8_t value) {
   Wire.beginTransmission(SI5351_ADDRESS);
   Wire.write(reg);
   Wire.write(value & 0xFF);
@@ -19,7 +20,6 @@ void SI5351_cls::write8(uint8_t reg, uint8_t value){
 }
 
 void SI5351_cls::begin(void) {
-
   /* Initialise I2C */
   Wire.begin();
 
@@ -28,19 +28,18 @@ void SI5351_cls::begin(void) {
 
   /* Set the load capacitance for the XTAL */
   // Bit 7:6 Crystal Load Capacitance Selection.
-  // These 2 bits determine the internal load capacitance value for the crystal. See the Crystal
-  // Inputs section in the Si5351 data sheet.
-  // 00: Reserved. Do not select this option.
-  // 01: Internal CL = 6 pF.
-  // 10: Internal CL = 8 pF.
-  // 11: Internal CL = 10 pF (default).
+  // These 2 bits determine the internal load capacitance value for the crystal.
+  // See the Crystal Inputs section in the Si5351 data sheet. 00: Reserved. Do
+  // not select this option. 01: Internal CL = 6 pF. 10: Internal CL = 8 pF. 11:
+  // Internal CL = 10 pF (default).
   //
   // 5:0 Reserved Bits 5:0 should be written to 010010b.
-  write8(SI5351_REGISTER_183_CRYSTAL_INTERNAL_LOAD_CAPACITANCE, 0b10010010); // 8 pF
+  write8(SI5351_REGISTER_183_CRYSTAL_INTERNAL_LOAD_CAPACITANCE,
+         0b10010010);  // 8 pF
 
-  write8(16, 0x80);     // Disable CLK0
-  write8(17, 0x80);     // Disable CLK1
-  write8(18, 0x80);     // Disable CLK2
+  write8(16, 0x80);  // Disable CLK0
+  write8(17, 0x80);  // Disable CLK1
+  write8(18, 0x80);  // Disable CLK2
 }
 
 /**************************************************************************/
@@ -52,7 +51,7 @@ void SI5351_cls::begin(void) {
   @param  mult  The PLL integer multiplier (must be between 15 and 90)
 */
 /**************************************************************************/
-void SI5351_cls::setupPLLInt(si5351PLL_t pll, uint8_t mult){
+void SI5351_cls::setupPLLInt(si5351PLL_t pll, uint8_t mult) {
   setupPLL(pll, mult, 0, 1);
 }
 
@@ -79,7 +78,8 @@ void SI5351_cls::setupPLLInt(si5351PLL_t pll, uint8_t mult){
     See: http://www.silabs.com/Support%20Documents/TechnicalDocs/AN619.pdf
 */
 /**************************************************************************/
-void SI5351_cls::setupPLL(si5351PLL_t pll, uint8_t mult, uint32_t num, uint32_t denom) {
+void SI5351_cls::setupPLL(si5351PLL_t pll, uint8_t mult, uint32_t num,
+                          uint32_t denom) {
   uint32_t P1; /* PLL config register P1 */
   uint32_t P2; /* PLL config register P2 */
   uint32_t P3; /* PLL config register P3 */
@@ -92,8 +92,10 @@ void SI5351_cls::setupPLL(si5351PLL_t pll, uint8_t mult, uint32_t num, uint32_t 
     P3 = denom;
   } else {
     /* Fractional mode */
-    P1 = (uint32_t)(128 * mult + floor(128 * ((float)num / (float)denom)) - 512);
-    P2 = (uint32_t)(128 * num - denom * floor(128 * ((float)num / (float)denom)));
+    P1 =
+        (uint32_t)(128 * mult + floor(128 * ((float)num / (float)denom)) - 512);
+    P2 = (uint32_t)(128 * num -
+                    denom * floor(128 * ((float)num / (float)denom)));
     P3 = denom;
   }
 
@@ -112,7 +114,6 @@ void SI5351_cls::setupPLL(si5351PLL_t pll, uint8_t mult, uint32_t num, uint32_t 
 
   /* Reset both PLLs */
   write8(SI5351_REGISTER_177_PLL_RESET, (1 << 7) | (1 << 5));
-
 }
 
 /**************************************************************************/
@@ -130,7 +131,7 @@ void SI5351_cls::setupPLL(si5351PLL_t pll, uint8_t mult, uint32_t num, uint32_t 
 */
 /**************************************************************************/
 void SI5351_cls::setupMultisynthInt(uint8_t output, si5351PLL_t pllSource,
-                                          si5351MultisynthDiv_t div) {
+                                    si5351MultisynthDiv_t div) {
   return setupMultisynth(output, pllSource, div, 0, 1);
 }
 
@@ -181,8 +182,7 @@ void SI5351_cls::setupMultisynthInt(uint8_t output, si5351PLL_t pllSource,
 */
 /**************************************************************************/
 void SI5351_cls::setupMultisynth(uint8_t output, si5351PLL_t pllSource,
-                                  uint32_t div, uint32_t num,
-                                  uint32_t denom) {
+                                 uint32_t div, uint32_t num, uint32_t denom) {
   uint32_t P1; /* Multisynth config register P1 */
   uint32_t P2; /* Multisynth config register P2 */
   uint32_t P3; /* Multisynth config register P3 */
@@ -196,22 +196,23 @@ void SI5351_cls::setupMultisynth(uint8_t output, si5351PLL_t pllSource,
   } else {
     /* Fractional mode */
     P1 = (uint32_t)(128 * div + floor(128 * ((float)num / (float)denom)) - 512);
-    P2 = (uint32_t)(128 * num - denom * floor(128 * ((float)num / (float)denom)));
+    P2 = (uint32_t)(128 * num -
+                    denom * floor(128 * ((float)num / (float)denom)));
     P3 = denom;
   }
 
   /* Get the appropriate starting point for the PLL registers */
   uint8_t baseaddr = 0;
   switch (output) {
-  case 0:
-    baseaddr = SI5351_REGISTER_42_MULTISYNTH0_PARAMETERS_1;
-    break;
-  case 1:
-    baseaddr = SI5351_REGISTER_50_MULTISYNTH1_PARAMETERS_1;
-    break;
-  case 2:
-    baseaddr = SI5351_REGISTER_58_MULTISYNTH2_PARAMETERS_1;
-    break;
+    case 0:
+      baseaddr = SI5351_REGISTER_42_MULTISYNTH0_PARAMETERS_1;
+      break;
+    case 1:
+      baseaddr = SI5351_REGISTER_50_MULTISYNTH1_PARAMETERS_1;
+      break;
+    case 2:
+      baseaddr = SI5351_REGISTER_58_MULTISYNTH2_PARAMETERS_1;
+      break;
   }
 
   /* Set the MSx config registers */
@@ -228,17 +229,17 @@ void SI5351_cls::setupMultisynth(uint8_t output, si5351PLL_t pllSource,
   uint8_t clkControlReg = 0x0F; /* 8mA drive strength, MS0 as CLK0 source, Clock
                                    not inverted, powered up */
   if (pllSource == SI5351_PLL_B) clkControlReg |= (1 << 5); /* Uses PLLB */
-  if (num == 0) clkControlReg |= (1 << 6); /* Integer mode */
+  if (num == 0) clkControlReg |= (1 << 6);                  /* Integer mode */
   switch (output) {
-  case 0:
-    write8(SI5351_REGISTER_16_CLK0_CONTROL, clkControlReg);
-    break;
-  case 1:
-    write8(SI5351_REGISTER_17_CLK1_CONTROL, clkControlReg);
-    break;
-  case 2:
-    write8(SI5351_REGISTER_18_CLK2_CONTROL, clkControlReg);
-    break;
+    case 0:
+      write8(SI5351_REGISTER_16_CLK0_CONTROL, clkControlReg);
+      break;
+    case 1:
+      write8(SI5351_REGISTER_17_CLK1_CONTROL, clkControlReg);
+      break;
+    case 2:
+      write8(SI5351_REGISTER_18_CLK2_CONTROL, clkControlReg);
+      break;
   }
 }
 
@@ -251,11 +252,10 @@ void SI5351_cls::enableOutputs(bool enabled) {
 
 // new frequency
 void SI5351_cls::setFreq(si5351Freq_t newFreq, uint8_t output) {
-
-  if (this->currentFreq == newFreq ) return;
+  if (this->currentFreq == newFreq) return;
 
   si5351PLL_t targetPLL;
-  
+
   if (output == 0) {
     targetPLL = SI5351_PLL_A;
   } else {
@@ -265,7 +265,7 @@ void SI5351_cls::setFreq(si5351Freq_t newFreq, uint8_t output) {
   switch (newFreq) {
     case SI5351_4000:
       // 4MHz
-      setupPLLInt(targetPLL, 32); // 25MHz * 32 = 800
+      setupPLLInt(targetPLL, 32);  // 25MHz * 32 = 800
       setupMultisynth(output, targetPLL, 200, 0, 1);
       break;
     case SI5351_3579:
@@ -275,8 +275,8 @@ void SI5351_cls::setFreq(si5351Freq_t newFreq, uint8_t output) {
       break;
     case SI5351_3375:
       // 3.375 MHz
-      setupPLLInt(targetPLL, 27); // 25MHz * 27 = 675
-      setupMultisynth(output, targetPLL, 200, 0, 1); // 675/200 = 3.375
+      setupPLLInt(targetPLL, 27);                     // 25MHz * 27 = 675
+      setupMultisynth(output, targetPLL, 200, 0, 1);  // 675/200 = 3.375
       break;
     case SI5351_1500:
       // 1.5MHz
@@ -287,6 +287,11 @@ void SI5351_cls::setFreq(si5351Freq_t newFreq, uint8_t output) {
       // 1.536MHz
       setupPLL(targetPLL, 28, 52, 3125);
       setupMultisynth(output, targetPLL, 456, 0, 1);
+      break;
+    case SI5351_1250:
+      // 1.250MHz
+      setupPLLInt(targetPLL, 31);
+      setupMultisynth(output, targetPLL, 620, 0, 1);
       break;
     case SI5351_3000:
       // 3MHz
@@ -323,7 +328,7 @@ void SI5351_cls::setFreq(si5351Freq_t newFreq, uint8_t output) {
       break;
     default:
       // 4MHz
-      setupPLLInt(targetPLL, 32); // 25MHz * 32 = 800
+      setupPLLInt(targetPLL, 32);  // 25MHz * 32 = 800
       setupMultisynth(output, targetPLL, 200, 0, 1);
       break;
   }
@@ -331,8 +336,6 @@ void SI5351_cls::setFreq(si5351Freq_t newFreq, uint8_t output) {
 }
 
 // constructor
-SI5351_cls::SI5351_cls(void){
-  this->currentFreq = SI5351_UNDEFINED;
-}
+SI5351_cls::SI5351_cls(void) { this->currentFreq = SI5351_UNDEFINED; }
 
 SI5351_cls SI5351;

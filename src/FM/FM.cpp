@@ -63,16 +63,16 @@ void FMChip::reset(void) {
   CS0_LOW;
   CS1_LOW;
   // CS2_LOW;
-
+  Tick.delay_us(20);
   WR_HIGH;
   A0_LOW;
   IC_LOW;
-  Tick.delay_us(64);  // at least 72 cycles // at 4MHz: 0.25us * 72 = 18us
+  Tick.delay_us(100);  // at least 72 cycles // at 4MHz: 0.25us * 72 = 18us
   IC_HIGH;
   CS0_HIGH;
   CS1_HIGH;
   // CS2_HIGH;
-  Tick.delay_us(64);
+  Tick.delay_us(20);
 }
 
 void FMChip::write(byte data, byte chipno = CS1) {
@@ -146,91 +146,50 @@ void FMChip::writeRaw(byte data, byte chipno = CS1) {
 }
 
 void FMChip::set_register(byte addr, byte data, uint8_t chipno = CS0) {
-  uint32_t addr_bits = 0;
-  uint32_t data_bits = 0;
-
+  // LOW
+  GPIO_BC(GPIOC) = GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
+  GPIO_BC(GPIOA) =
+      GPIO_PIN_4 | GPIO_PIN_3 | GPIO_PIN_2 | GPIO_PIN_1 | GPIO_PIN_0;
+  // HIGH
+  GPIO_BOP(GPIOC) =
+      ((addr & 0b1) << 15) | ((addr & 0b10) << 13) | ((addr & 0b100) << 11);
+  GPIO_BOP(GPIOA) = (addr & 0b11111000) >> 3;  // D3, D4 ,D5, D6, D7
   A0_LOW;
-
   switch (chipno) {
     case CS0:
       CS0_LOW;
       CS1_HIGH;
-      // CS2_HIGH;
       break;
     case CS1:
       CS0_HIGH;
       CS1_LOW;
-      // CS2_HIGH;
       break;
-      /*    case CS2:
-            CS0_HIGH;
-            CS1_HIGH;
-            //CS2_LOW;
-            break;*/
   }
-
-  //---------------------------------------
-  // address
-  Tick.delay_us(7);
-
   WR_LOW;
-
-  if (addr & 0b00000001) {
-    addr_bits += GPIO_PIN_15;  // D0
-  }
-  if (addr & 0b00000010) {
-    addr_bits += GPIO_PIN_14;  // D1
-  }
-  if (addr & 0b00000100) {
-    addr_bits += GPIO_PIN_13;  // D2
-  }
-
-  // LOW
-  GPIO_BC(GPIOC) = GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
-  GPIO_BC(GPIOA) =
-      GPIO_PIN_4 | GPIO_PIN_3 | GPIO_PIN_2 | GPIO_PIN_1 | GPIO_PIN_0;
-
-  // HIGH
-  GPIO_BOP(GPIOC) = addr_bits;
-  GPIO_BOP(GPIOA) = (addr & 0b11111000) >> 3;  // D3, D4 ,D5, D6, D7
-
-  Tick.delay_us(5);
-
+  Tick.delay_us(1);
   WR_HIGH;
+  A0_HIGH;
 
   //---------------------------------------
   // data
-  Tick.delay_us(7);  // 最低 7
 
-  A0_HIGH;
-  // CS to LOW
-  WR_LOW;
-
-  if (data & 0b00000001) {
-    data_bits += GPIO_PIN_15;
-  }
-  if (data & 0b00000010) {
-    data_bits += GPIO_PIN_14;
-  }
-  if (data & 0b00000100) {
-    data_bits += GPIO_PIN_13;
-  }
+  Tick.delay_us(2);  // 2が限界
 
   // LOW
   GPIO_BC(GPIOC) = GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
   GPIO_BC(GPIOA) =
       GPIO_PIN_4 | GPIO_PIN_3 | GPIO_PIN_2 | GPIO_PIN_1 | GPIO_PIN_0;
-
   // HIGH
-  GPIO_BOP(GPIOC) = data_bits;
+  GPIO_BOP(GPIOC) =
+      ((data & 0b1) << 15) | ((data & 0b10) << 13) | ((data & 0b100) << 11);
   GPIO_BOP(GPIOA) = (data & 0b11111000) >> 3;
 
-  Tick.delay_us(5);  // 最低 5
-
+  WR_LOW;
+  Tick.delay_us(1);
   WR_HIGH;
-
   CS0_HIGH;
-  Tick.delay_us(7);  // 最低 7, 6は一部の曲が間に合わない
+
+  Tick.delay_us(17);
 }
 
 FMChip FM;
